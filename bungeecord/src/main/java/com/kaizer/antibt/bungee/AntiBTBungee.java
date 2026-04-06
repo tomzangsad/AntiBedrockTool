@@ -5,6 +5,7 @@ import com.kaizer.antibt.DetectionEngine;
 import com.kaizer.antibt.FloodgateHelper;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.*;
@@ -167,7 +168,11 @@ public class AntiBTBungee extends Plugin implements Listener {
     @EventHandler
     public void onServerConnect(ServerConnectedEvent event) {
         ProxiedPlayer player = event.getPlayer();
-        if (!engine.getFloodgateHelper().isBedrockPlayer(player.getUniqueId())) {
+        if (engine.getFloodgateHelper().isBedrockPlayer(player.getUniqueId())) {
+            if (!verifiedUsernames.contains(player.getName().toLowerCase()) && bedrockJoinTimes.containsKey(player.getUniqueId())) {
+                startVerificationCountdown(player);
+            }
+        } else {
             engine.onSpawn(player.getUniqueId());
         }
     }
@@ -179,6 +184,28 @@ public class AntiBTBungee extends Plugin implements Listener {
         if (!engine.getFloodgateHelper().isBedrockPlayer(player.getUniqueId())) {
             engine.onQuit(player.getUniqueId());
         }
+    }
+
+    // ==================== Verification Countdown ====================
+
+    private void startVerificationCountdown(ProxiedPlayer player) {
+        final int totalSeconds = (int)(VERIFY_DELAY_MS / 1000);
+        final UUID uuid = player.getUniqueId();
+        getProxy().getScheduler().schedule(this, () -> {
+            ProxiedPlayer p = getProxy().getPlayer(uuid);
+            if (p == null || !bedrockJoinTimes.containsKey(uuid)) return;
+            long elapsed = (System.currentTimeMillis() - bedrockJoinTimes.get(uuid)) / 1000;
+            int remaining = totalSeconds - (int) elapsed;
+            if (remaining <= 0) return;
+            String color = remaining <= 5 ? "§c" : remaining <= 15 ? "§e" : "§a";
+            Title title = getProxy().createTitle();
+            title.title(new TextComponent(color + "§l" + remaining));
+            title.subTitle(new TextComponent("§7Verifying your identity..."));
+            title.fadeIn(0);
+            title.stay(25);
+            title.fadeOut(0);
+            p.sendTitle(title);
+        }, 0, 1, TimeUnit.SECONDS);
     }
 
     // ==================== Pack Verification ====================

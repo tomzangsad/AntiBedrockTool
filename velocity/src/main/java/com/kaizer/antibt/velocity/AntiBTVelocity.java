@@ -18,9 +18,12 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -125,8 +128,12 @@ public class AntiBTVelocity {
     @Subscribe
     public void onServerConnect(ServerPostConnectEvent event) {
         Player player = event.getPlayer();
-        // Only track spawns for Java players in DetectionEngine
-        if (!engine.getFloodgateHelper().isBedrockPlayer(player.getUniqueId())) {
+        if (engine.getFloodgateHelper().isBedrockPlayer(player.getUniqueId())) {
+            if (!verifiedUsernames.contains(player.getUsername().toLowerCase()) && bedrockJoinTimes.containsKey(player.getUniqueId())) {
+                startVerificationCountdown(player);
+            }
+        } else {
+            // Only track spawns for Java players in DetectionEngine
             engine.onSpawn(player.getUniqueId());
         }
     }
@@ -139,6 +146,28 @@ public class AntiBTVelocity {
         if (!engine.getFloodgateHelper().isBedrockPlayer(player.getUniqueId())) {
             engine.onQuit(player.getUniqueId());
         }
+    }
+
+    // ==================== Verification Countdown ====================
+
+    private void startVerificationCountdown(Player player) {
+        final int totalSeconds = (int)(VERIFY_DELAY_MS / 1000);
+        final UUID uuid = player.getUniqueId();
+        proxy.getScheduler().buildTask(this, () -> {
+            Optional<Player> opt = proxy.getPlayer(uuid);
+            if (opt.isEmpty() || !bedrockJoinTimes.containsKey(uuid)) return;
+            Player p = opt.get();
+            long elapsed = (System.currentTimeMillis() - bedrockJoinTimes.get(uuid)) / 1000;
+            int remaining = totalSeconds - (int) elapsed;
+            if (remaining <= 0) return;
+            NamedTextColor color = remaining <= 5 ? NamedTextColor.RED : remaining <= 15 ? NamedTextColor.YELLOW : NamedTextColor.GREEN;
+            Title title = Title.title(
+                Component.text(String.valueOf(remaining), color, TextDecoration.BOLD),
+                Component.text("Verifying your identity...", NamedTextColor.GRAY),
+                Title.Times.times(Duration.ZERO, Duration.ofMillis(1250), Duration.ZERO)
+            );
+            p.showTitle(title);
+        }).repeat(1, TimeUnit.SECONDS).schedule();
     }
 
     // ==================== Pack Verification System ====================
