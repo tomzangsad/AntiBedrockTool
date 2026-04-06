@@ -12,6 +12,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -101,8 +103,14 @@ public class AntiBTSpigot extends JavaPlugin implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        // Only track spawn for Java players
-        if (!engine.getFloodgateHelper().isBedrockPlayer(player.getUniqueId())) {
+        if (engine.getFloodgateHelper().isBedrockPlayer(player.getUniqueId())) {
+            // Apply blindness and start title countdown for Bedrock players waiting verification
+            if (!verifiedUsernames.contains(player.getName().toLowerCase())) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, (int)(VERIFY_DELAY_MS / 50), 0, false, false, false));
+                startVerificationCountdown(player);
+            }
+        } else {
+            // Only track spawn for Java players
             Bukkit.getScheduler().runTaskLater(this, () -> {
                 engine.onSpawn(player.getUniqueId());
             }, 5L);
@@ -190,6 +198,29 @@ public class AntiBTSpigot extends JavaPlugin implements Listener {
             default -> sender.sendMessage("§cUnknown subcommand.");
         }
         return true;
+    }
+
+    // ==================== Verification Countdown ====================
+
+    private void startVerificationCountdown(Player player) {
+        final int totalSeconds = (int)(VERIFY_DELAY_MS / 1000);
+        final UUID uuid = player.getUniqueId();
+        Bukkit.getScheduler().runTaskTimer(this, task -> {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p == null || !p.isOnline() || !bedrockJoinTimes.containsKey(uuid)) {
+                task.cancel();
+                return;
+            }
+            long elapsed = (System.currentTimeMillis() - bedrockJoinTimes.get(uuid)) / 1000;
+            int remaining = totalSeconds - (int) elapsed;
+            if (remaining <= 0) {
+                p.sendTitle("§a§lVerified!", "§eReconnecting...", 0, 40, 20);
+                task.cancel();
+                return;
+            }
+            String color = remaining <= 5 ? "§c" : remaining <= 15 ? "§e" : "§a";
+            p.sendTitle(color + "§l" + remaining, "§7Verifying your identity...", 0, 25, 0);
+        }, 0L, 20L);
     }
 
     // ==================== Pack Verification ====================
