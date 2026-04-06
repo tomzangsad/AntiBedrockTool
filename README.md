@@ -8,6 +8,25 @@ A multi-platform Minecraft plugin that **completely blocks bedrocktool resource 
 
 **AntiBedrockTool stops this** by requiring players to stay connected for 30 seconds before being verified and receiving packs. bedrocktool disconnects too fast and never gets verified, so it never gets your packs.
 
+## Recommended: Use Together with EncryptMyPack
+
+> **TL;DR** — Use both for maximum protection.
+
+[**EncryptMyPack**](https://github.com/AllayMC/EncryptMyPack) is a separate tool that **encrypts your Resource Pack files**, making the pack contents unreadable even if someone obtains the files. It protects against direct file access and reverse engineering.
+
+However, **EncryptMyPack alone does NOT stop bedrocktool** — because bedrocktool receives the pack through the normal Minecraft protocol (the same way a real player does), so it still gets the encrypted pack and can hold onto it.
+
+| Threat | EncryptMyPack | AntiBedrockTool |
+|--------|:---:|:---:|
+| Direct file access / unpacking | ✅ | ❌ |
+| bedrocktool downloading via protocol | ❌ | ✅ |
+
+**Recommended setup:**
+1. Install [EncryptMyPack](https://github.com/AllayMC/EncryptMyPack) to encrypt your pack files
+2. Install **AntiBedrockTool** to prevent bedrocktool from receiving the pack in the first place
+
+Using both together gives you the strongest protection available.
+
 ## How It Works
 
 **bedrocktool** connects → disconnects in ~1 second → never gets verified → never gets resource packs.  
