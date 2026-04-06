@@ -1,5 +1,6 @@
 # AntiBedrockTool
 
+Example: https://youtu.be/hq380Zx7Nv4
 A multi-platform Minecraft plugin that **completely blocks bedrocktool resource pack downloaders** using a whitelist-based verification system.
 
 ## What is bedrocktool?
