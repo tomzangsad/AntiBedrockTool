@@ -1,0 +1,55 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: Get tag name
+        id: tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.VERSION }}
+          name: AntiBedrockTool ${{ steps.tag.outputs.VERSION }}
+          body: |
+            ## Installation
+
+            Download the JARs you need based on your setup:
+
+            | File | Where to put it |
+            |------|----------------|
+            | `AntiBedrockTool-Geyser-*.jar` | `plugins/Geyser-Velocity/extensions/` or `plugins/Geyser-BungeeCord/extensions/` (**required**) |
+            | `AntiBedrockTool-Velocity-*.jar` | `plugins/` (Velocity proxy) |
+            | `AntiBedrockTool-BungeeCord-*.jar` | `plugins/` (BungeeCord proxy) |
+            | `AntiBedrockTool-Spigot-*.jar` | `plugins/` (Spigot/Paper server) |
+
+            See [README](https://github.com/${{ github.repository }}/blob/main/README.md) for full documentation.
+          files: |
+            velocity/build/libs/AntiBedrockTool-Velocity-*.jar
+            bungeecord/build/libs/AntiBedrockTool-BungeeCord-*.jar
+            spigot/build/libs/AntiBedrockTool-Spigot-*.jar
+            geyser/build/libs/AntiBedrockTool-Geyser-*.jar
+          draft: false
+          prerelease: false
