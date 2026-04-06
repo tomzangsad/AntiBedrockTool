@@ -185,9 +185,3 @@ Plugin/
 | **Geyser Extension** | All Bedrock players | Strips packs from unverified players |
 | **Velocity/BungeeCord/Spigot** | Bedrock players | 30s verification timer, writes verified-players.txt |
 | **Velocity/BungeeCord/Spigot** | Java players | DetectionEngine (suspicious connection detection) |
-
----
-
-## License
-
-MIT
