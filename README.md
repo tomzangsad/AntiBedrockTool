@@ -2,6 +2,12 @@
 
 A multi-platform Minecraft plugin that **completely blocks bedrocktool resource pack downloaders** using a whitelist-based verification system.
 
+## What is bedrocktool?
+
+[bedrocktool](https://github.com/bedrock-tool/bedrocktool) is a program that impersonates a Bedrock player to **silently download Resource Packs** from your server without permission. It connects, downloads packs, and disconnects — all within ~1 second.
+
+**AntiBedrockTool stops this** by requiring players to stay connected for 30 seconds before being verified and receiving packs. bedrocktool disconnects too fast and never gets verified, so it never gets your packs.
+
 ## How It Works
 
 **bedrocktool** connects → disconnects in ~1 second → never gets verified → never gets resource packs.  
@@ -98,6 +104,9 @@ plugins/Geyser-Velocity/extensions/antibedrocktool/verified-players.txt
 ### Returning verified player
 - Packs load immediately on connect ✅
 
+### bedrocktool (attacker)
+- Connects → disconnects in ~1 second → **never verified** → **never receives packs** ❌
+
 ---
 
 ## Configuration
@@ -113,6 +122,15 @@ first-offense-block-minutes: 30
 persist-bans: true
 ```
 
+| Option | Description |
+|--------|-------------|
+| `kick-message` | Message shown when kicking a suspicious Java player |
+| `headless-kick-message` | Message shown when kicking a headless (no-brand) client |
+| `block-headless-clients` | Block Java clients that don't send a brand (bots/tools) |
+| `first-offense-block` | Temporarily IP-ban on first detected offense |
+| `first-offense-block-minutes` | How long the IP ban lasts (in minutes) |
+| `persist-bans` | Keep bans saved across server restarts |
+
 > **Note**: `block-headless-clients` and `first-offense-block` only apply to **Java players** in the current version. Bedrock player protection is handled entirely by the Geyser extension.
 
 ---
@@ -122,7 +140,7 @@ persist-bans: true
 **Requirements**: Java 17+, Gradle
 
 ```bash
-git clone https://github.com/your-username/AntiBedrockTool.git
+git clone https://github.com/tomzangsad/AntiBedrockTool.git
 cd AntiBedrockTool/Plugin
 ./gradlew clean build
 ```
