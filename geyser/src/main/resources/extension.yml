@@ -1,0 +1,7 @@
+id: antibedrocktool
+name: AntiBedrockTool
+main: com.kaizer.antibt.geyser.AntiBTGeyserExtension
+api: 2.0.0
+version: 2.0.0
+authors:
+  - Kaizer

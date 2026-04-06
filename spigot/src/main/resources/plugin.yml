@@ -1,0 +1,18 @@
+name: AntiBedrockTool
+version: '${version}'
+main: com.kaizer.antibt.spigot.AntiBTSpigot
+api-version: '1.21'
+description: Detects and blocks bedrocktool resource pack downloaders
+author: Kaizer
+softdepend:
+  - Geyser-Spigot
+  - floodgate
+commands:
+  antibt:
+    description: AntiBedrockTool admin commands
+    usage: /antibt <reload|status|unban>
+    permission: antibt.admin
+permissions:
+  antibt.admin:
+    description: Access to AntiBedrockTool commands
+    default: op

@@ -1,0 +1,5 @@
+name: AntiBedrockTool
+main: com.kaizer.antibt.bungee.AntiBTBungee
+version: 1.0.0
+author: Kaizer
+description: Detects and blocks bedrocktool resource pack downloaders
