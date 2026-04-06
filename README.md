@@ -14,7 +14,7 @@ A multi-platform Minecraft plugin that **completely blocks bedrocktool resource 
 
 [**EncryptMyPack**](https://github.com/AllayMC/EncryptMyPack) is a separate tool that **encrypts your Resource Pack files**, making the pack contents unreadable even if someone obtains the files. It protects against direct file access and reverse engineering.
 
-However, **EncryptMyPack alone does NOT stop bedrocktool** — because bedrocktool receives the pack through the normal Minecraft protocol (the same way a real player does), so it still gets the encrypted pack and can hold onto it.
+However, **EncryptMyPack alone does NOT stop bedrocktool** — because the Minecraft protocol sends both the encrypted pack **and its decryption key** to the client simultaneously. bedrocktool captures both, then automatically decrypts and saves all pack files. You can see this directly in [bedrocktool's source code](https://github.com/bedrock-tool/bedrocktool/blob/master/subcommands/resourcepack-d.go) — it calls `pack.ContentKey()` to retrieve the key and `CopyFS` to extract the fully decrypted files.
 
 | Threat | EncryptMyPack | AntiBedrockTool |
 |--------|:---:|:---:|
