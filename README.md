@@ -41,7 +41,7 @@ New Bedrock player connects
 ### Required (always)
 | File | Location |
 |------|----------|
-| `antibedrocktool-geyser.jar` | `plugins/Geyser-Velocity/extensions/` or `plugins/Geyser-BungeeCord/extensions/` |
+| `antibedrocktool-geyser.jar` | `plugins/Geyser-Velocity/extensions/` or `plugins/Geyser-BungeeCord/extensions/` or `plugins/Geyser-Spigot/extensions/` |
 
 ### Choose one backend (based on your setup)
 | Proxy/Server | File | Location |
